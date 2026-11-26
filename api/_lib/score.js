@@ -38,12 +38,12 @@ const SECTION_INFO = {
 
 // Plain-language explanation for each band. Always honest about the limits of a 25-question test.
 const CATEGORY_INFO = {
-  'Very Superior': 'You solved most of the puzzles, including nearly all of the hardest ones. This puts you well above the typical result on this test.',
-  'Superior': 'You handled the hard puzzles better than most people. Your visual reasoning is a clear strength on this test.',
-  'High Average': 'You did better than the typical test-taker, including some of the harder puzzles.',
-  'Average': 'Your result sits in the middle range, where most people land. You solved the easier puzzles reliably and found some of the harder ones tricky.',
-  'Low Average': 'You solved many of the early puzzles but found the harder ones difficult. Practice with similar puzzles often improves results.',
-  'Below Average': 'You found many of the puzzles difficult on this attempt. Tiredness, distraction or unfamiliarity with this puzzle style can all lower a score.',
+  'Very Superior': 'You solved nearly all of the puzzles, including the hardest ones.',
+  'Superior': 'You handled the hard puzzles better than most people.',
+  'High Average': 'You did better than the typical test-taker.',
+  'Average': 'Your result is in the middle range, where most people land.',
+  'Low Average': 'You solved many early puzzles but found the harder ones tough.',
+  'Below Average': 'Many puzzles were tough this time, which tiredness or an unfamiliar style can cause.',
 };
 const ACCURACY_NOTE = 'This is an estimate from 25 puzzles, so it can easily be off by 10 points or more. It is not a clinical or professionally administered IQ test.';
 

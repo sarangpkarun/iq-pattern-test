@@ -13,62 +13,50 @@
 <body data-screen="hook">
 <main id="app">
 
-  <!-- 1. HOOK SCREEN -->
+  <!-- 1. HOOK SCREEN: white, with a puzzle to try -->
   <section id="hook" class="screen active">
     <div class="hook-body">
       <h1 class="hook-title">Are you smarter than you think<span class="qtile">?</span></h1>
-      <p class="hook-lead">Most people score between 85 and 115. Where do you land?</p>
 
       <!-- A real puzzle to try right here: rows are shapes, columns are colours -->
       <div class="hero" id="hero">
-        <div class="hero-grid" role="img" aria-label="A three by three puzzle. Rows are circle, square, triangle. Columns are white, yellow, coral. The last tile is missing.">
-          <div class="hc c1"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#fff"/></svg></div>
-          <div class="hc c2"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#ffcb3d"/></svg></div>
-          <div class="hc c3"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#ff6b57"/></svg></div>
-          <div class="hc c4"><svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="4" fill="#fff"/></svg></div>
-          <div class="hc c5"><svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="4" fill="#ffcb3d"/></svg></div>
-          <div class="hc c6"><svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="4" fill="#ff6b57"/></svg></div>
-          <div class="hc c7"><svg viewBox="0 0 40 40"><polygon points="20,7 33,32 7,32" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></div>
-          <div class="hc c8"><svg viewBox="0 0 40 40"><polygon points="20,7 33,32 7,32" fill="#ffcb3d" stroke="#ffcb3d" stroke-width="3" stroke-linejoin="round"/></svg></div>
-          <div class="hc c9 missing" id="heroSlot"><span>?</span></div>
+        <div class="hero-grid" role="img" aria-label="A three by three puzzle. Rows are circle, square, triangle. Columns are blue, yellow, coral. The last tile is missing.">
+          <div class="hc"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#2433e8"/></svg></div>
+          <div class="hc"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#ffcb3d"/></svg></div>
+          <div class="hc"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#ff6b57"/></svg></div>
+          <div class="hc"><svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="4" fill="#2433e8"/></svg></div>
+          <div class="hc"><svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="4" fill="#ffcb3d"/></svg></div>
+          <div class="hc"><svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="4" fill="#ff6b57"/></svg></div>
+          <div class="hc"><svg viewBox="0 0 40 40"><polygon points="20,7 33,32 7,32" fill="#2433e8" stroke="#2433e8" stroke-width="3" stroke-linejoin="round"/></svg></div>
+          <div class="hc"><svg viewBox="0 0 40 40"><polygon points="20,7 33,32 7,32" fill="#ffcb3d" stroke="#ffcb3d" stroke-width="3" stroke-linejoin="round"/></svg></div>
+          <div class="hc missing" id="heroSlot"><span>?</span></div>
         </div>
         <div class="hero-opts" id="heroOpts">
           <button type="button" class="ho" data-ok="0" aria-label="Coral square"><svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="4" fill="#ff6b57"/></svg></button>
           <button type="button" class="ho" data-ok="1" aria-label="Coral triangle"><svg viewBox="0 0 40 40"><polygon points="20,7 33,32 7,32" fill="#ff6b57" stroke="#ff6b57" stroke-width="3" stroke-linejoin="round"/></svg></button>
           <button type="button" class="ho" data-ok="0" aria-label="Yellow triangle"><svg viewBox="0 0 40 40"><polygon points="20,7 33,32 7,32" fill="#ffcb3d" stroke="#ffcb3d" stroke-width="3" stroke-linejoin="round"/></svg></button>
         </div>
-        <p class="hero-msg" id="heroMsg" aria-live="polite">Which piece fits the missing tile?</p>
-      </div>
-
-      <ul class="kinds" aria-label="What the test covers">
-        <li><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/></svg>Patterns</li>
-        <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h5v9h7v5H4z"/></svg>Spatial</li>
-        <li><b aria-hidden="true">7</b>Numbers</li>
-        <li><b aria-hidden="true">Aa</b>Words</li>
-      </ul>
-
-      <div class="hook-legal">
-        <p class="disclaimer">An online self-assessment for personal insight and entertainment. Not a clinical or professionally administered IQ test.</p>
-        <nav class="legal-links" aria-label="Legal">
-        <a href="terms.html" target="_blank" rel="noopener">Terms</a>
-        <a href="privacy.html" target="_blank" rel="noopener">Privacy</a>
-        <a href="refund.html" target="_blank" rel="noopener">Refund Policy</a>
-        <a href="contact.html" target="_blank" rel="noopener">Contact</a>
-        </nav>
+        <p class="hero-msg" id="heroMsg" aria-live="polite">Tap the missing piece</p>
       </div>
     </div>
 
     <div class="bottom-bar">
-      <p class="facts">32 timed questions. About 10 minutes.</p>
-      <button id="startBtn" class="btn sun">Start the test</button>
+      <p class="facts">32 timed questions, 10 minutes</p>
+      <button id="startBtn" class="btn">Start the test</button>
+      <p class="micro">Not a clinical IQ test</p>
+      <nav class="legal-links" aria-label="Legal">
+        <a href="terms.html" target="_blank" rel="noopener">Terms</a>
+        <a href="privacy.html" target="_blank" rel="noopener">Privacy</a>
+        <a href="refund.html" target="_blank" rel="noopener">Refund Policy</a>
+        <a href="contact.html" target="_blank" rel="noopener">Contact</a>
+      </nav>
     </div>
   </section>
 
   <!-- 2. QUICK SETUP -->
   <section id="setup" class="screen">
     <div class="center-body">
-      <h2>Quick setup</h2>
-      <p class="lead">Pick your age range so we can personalise your report. This test is for adults aged 18 and over.</p>
+      <h2>Your age?</h2>
       <div id="ageChips" class="chips">
         <button class="chip" data-age="18–24">18–24</button>
         <button class="chip" data-age="25–34">25–34</button>
@@ -77,19 +65,16 @@
         <button class="chip" data-age="55+">55+</button>
       </div>
       <button id="skipAge" class="link">Skip</button>
+      <p class="micro">Adults 18+ only</p>
     </div>
   </section>
 
-  <!-- 3. HOW IT WORKS: tells people the questions are timed before they start -->
+  <!-- 3. START: one line, then go -->
   <section id="intro" class="screen">
-    <div class="center-body left">
-      <h2>How it works</h2>
-      <ul class="rules">
-        <li><b>4 sections, 8 questions each.</b> Patterns, spatial, numbers and words.</li>
-        <li><b>Every question is timed.</b> You get 15 to 40 seconds. When the time is up we move on, and that question counts as missed.</li>
-        <li><b>After each section</b> you see how you compare with other people.</li>
-      </ul>
-      <button id="introBtn" class="btn">Start section 1</button>
+    <div class="center-body">
+      <h2>Ready?</h2>
+      <p class="lead">4 sections. Every question is timed.</p>
+      <button id="introBtn" class="btn">Start</button>
     </div>
   </section>
 
@@ -126,7 +111,6 @@
         <span id="nextInfo"></span>
       </div>
       <button id="nextBtn" class="btn">Continue</button>
-      <p class="note">Estimated by comparing your score with how people perform on this test.</p>
     </div>
   </section>
 
@@ -148,10 +132,10 @@
       <div class="spinner" aria-hidden="true"></div>
       <h2>Analyzing your answers…</h2>
       <ul id="steps" class="steps">
-        <li>Checking pattern recognition…</li>
-        <li>Measuring spatial reasoning…</li>
-        <li>Scoring numerical reasoning…</li>
-        <li>Weighing verbal reasoning…</li>
+        <li>Patterns</li>
+        <li>Spatial</li>
+        <li>Numbers</li>
+        <li>Words</li>
       </ul>
     </div>
   </section>
@@ -170,11 +154,10 @@
         <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
         <button id="payBtn" class="btn" type="submit">Unlock my result – ₹50</button>
         <p id="payError" class="error" role="alert" hidden></p>
-        <p class="note">One-time payment of ₹50 via Razorpay (UPI, cards, netbanking). No subscription.</p>
-        <p class="note">By paying you agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="refund.html" target="_blank" rel="noopener">Refund Policy</a> (all sales are final).</p>
+        <p class="note">Secure payment by Razorpay. By paying you agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="refund.html" target="_blank" rel="noopener">Refund Policy</a> (all sales are final).</p>
       </form>
       <button id="retakeBtn" class="link">Retake the test</button>
-      <p class="disclaimer">An online self-assessment for personal insight and entertainment. Not a clinical or professionally administered IQ test.</p>
+      <p class="micro">Not a clinical IQ test</p>
       <nav class="legal-links" aria-label="Legal">
         <a href="terms.html" target="_blank" rel="noopener">Terms</a>
         <a href="privacy.html" target="_blank" rel="noopener">Privacy</a>
@@ -198,8 +181,6 @@
         <div class="bar"><div id="percentileFill"></div></div>
       </div>
       <div id="sectionBars" class="section-bars"></div>
-      <p id="accuracyNote" class="note"></p>
-      <p id="timeLine" class="note"></p>
       <p id="emailedLine" class="note"></p>
       <button id="retakeBtn2" class="link">Take the test again</button>
       <p class="disclaimer">An online self-assessment for personal insight and entertainment. Not a clinical or professionally administered IQ test.</p>

@@ -5,11 +5,6 @@
 const TOTAL = QUESTIONS.length;                 // 32
 const PER_SECTION = 8;
 const SECTION_NAMES = [...new Set(QUESTIONS.map((q) => q.section))];   // in the order they are asked
-const SECTION_INTRO = {                         // one line shown on the card that leads into each section
-  'Spatial Reasoning': 'Rotate, flip and mirror shapes in your head.',
-  'Numerical Reasoning': 'Number patterns and quick mental maths.',
-  'Verbal Reasoning': 'Word meanings, analogies and simple logic.',
-};
 const STORE_KEY = 'iqtest_progress_v2';
 
 // Everything we need to remember lives in this one object (and is mirrored to localStorage).
@@ -47,7 +42,7 @@ function clearSaved() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach((el) => el.classList.toggle('active', el.id === id));
   document.body.dataset.screen = id;                                   // the hook is cobalt, everything else is light
-  $('themeColor').setAttribute('content', id === 'hook' ? '#2433e8' : '#f1f3ff');
+  $('themeColor').setAttribute('content', id === 'hook' ? '#ffffff' : '#f1f3ff');
   window.scrollTo(0, 0);
 }
 
@@ -63,10 +58,10 @@ function showScreen(id) {
       b.classList.add('ok');
       slot.className = 'hc c9 solved';
       slot.innerHTML = b.innerHTML;
-      msg.textContent = 'Yes. Rows are shapes, columns are colours. Now try 32 more.';
+      msg.textContent = 'Yes! Now try 32 more.';
     } else {
       b.classList.remove('no'); void b.offsetWidth; b.classList.add('no');
-      msg.textContent = 'Not quite. Check what each row and column has in common.';
+      msg.textContent = 'Not quite. Try another.';
     }
   });
 })();
@@ -223,7 +218,8 @@ function showSectionDone(s) {
   $('nextCard').hidden = last;
   if (!last) {
     $('nextName').textContent = `Up next: ${SECTION_NAMES[s + 1]}`;
-    $('nextInfo').textContent = `${PER_SECTION} questions. ${SECTION_INTRO[SECTION_NAMES[s + 1]]} Each one is timed.`;
+    const left = SECTION_NAMES.length - 1 - s;
+    $('nextInfo').textContent = `${PER_SECTION} timed questions. ${left} ${left === 1 ? 'section' : 'sections'} left.`;
   }
   $('nextBtn').textContent = last ? 'See my result' : `Start ${SECTION_NAMES[s + 1]}`;
 
@@ -241,17 +237,17 @@ function showSectionDone(s) {
     });
 }
 
-// p = share of test-takers you beat (5..95). Top half: "Top 15%". Below the median: "Ahead of 40%" (still true, and kinder).
+// p = share of people who finished this section that you beat (5..95).
+// Top half: "Top 15%". Below the median: "Beat 40%" (still true, and kinder than "Top 60%").
 function renderRank(p, name) {
-  $('rankBig').classList.toggle('long', p < 50);   // "Ahead of 40%" is longer than "Top 15%", so it is set a little smaller
-  if (p >= 50) { $('rankBig').textContent = `Top ${100 - p}%`; $('rankSub').textContent = `on ${name}`; }
-  else { $('rankBig').textContent = `Ahead of ${p}%`; $('rankSub').textContent = `of test-takers on ${name}`; }
+  $('rankBig').textContent = p >= 50 ? `Top ${100 - p}%` : `Beat ${p}%`;
+  $('rankSub').textContent = `of people who finished ${name}`;
   $('doneMsg').textContent =
-    p >= 85 ? 'Excellent. That is a standout result.' :
-    p >= 65 ? 'Strong. You are well ahead of most people.' :
-    p >= 50 ? 'Solid. You are in the top half.' :
-    p >= 30 ? 'A fair start. Every section is scored on its own, so the next one is a fresh chance.' :
-              'A tough one. Every section is scored on its own, so the next one is a fresh start.';
+    p >= 85 ? 'Excellent.' :
+    p >= 65 ? 'Strong. Well ahead of most.' :
+    p >= 50 ? 'Solid. Top half.' :
+    p >= 30 ? 'Fair start. Next one is a fresh chance.' :
+              'Next one is a fresh start.';
   requestAnimationFrame(() => requestAnimationFrame(() => { $('rankFill').style.width = p + '%'; }));
 }
 
@@ -394,12 +390,10 @@ function renderUnlocked(r) {
   $('iqNumber').textContent = r.iq;
   $('iqCategory').textContent = r.category;
   $('meaningText').textContent = r.meaning;
-  $('accuracyNote').textContent = r.accuracyNote;
   $('percentileText').textContent = `You scored higher than about ${r.percentile}% of test-takers.`;
   $('sectionBars').innerHTML = r.sections.map((s) =>
-    `<div class="section-row"><div class="row-head"><span>${s.name}</span><b>${s.percent}%</b></div><div class="bar"><div data-w="${s.percent}"></div></div><p class="blurb">${s.blurb}</p></div>`).join('');
-  $('timeLine').textContent = `Completed in ${formatTime(r.timeTaken * 1000)}.`;
-  $('emailedLine').textContent = `A copy is being emailed to ${r.email}.`;
+    `<div class="section-row"><div class="row-head"><span>${s.name}</span><b>${s.percent}%</b></div><div class="bar"><div data-w="${s.percent}"></div></div></div>`).join('');
+  $('emailedLine').textContent = `Emailed to ${r.email}.`;
   showScreen('unlocked');
   $('percentileFill').style.width = '0';
   // animate the bars after the screen is visible

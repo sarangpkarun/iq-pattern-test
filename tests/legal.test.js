@@ -47,16 +47,27 @@ test('every data-biz field used on the pages exists in business.js', () => {
   }
 });
 
-test('footer links + disclaimer on hook, locked result and unlocked screens; none during questions', () => {
+test('footer links on hook, locked result and unlocked screens; none during questions', () => {
   const html = read('index.html');
   const section = (id) => html.slice(html.indexOf(`<section id="${id}"`), html.indexOf('</section>', html.indexOf(`<section id="${id}"`)));
   for (const id of ['hook', 'result', 'unlocked']) {
     const s = section(id);
     assert.ok(s.includes('terms.html') && s.includes('privacy.html') && s.includes('refund.html') && s.includes('contact.html'), id + ' links');
-    assert.ok(s.includes(DISCLAIMER), id + ' disclaimer');
   }
+  // short disclaimer on the hook and locked screens; the full wording stays on the paid report
+  assert.ok(section('hook').includes('Not a clinical IQ test'));
+  assert.ok(section('result').includes('Not a clinical IQ test'));
+  assert.ok(section('unlocked').includes(DISCLAIMER));
   assert.ok(!section('question').includes('terms.html'));
   assert.ok(!/₹|Full report|Free to take/.test(section('hook')), 'the hook screen no longer shows the price');
+});
+
+test('the hook is short: under 25 words of visible text (not counting the legal links)', () => {
+  const html = read('index.html');
+  const hook = html.slice(html.indexOf('<section id="hook"'), html.indexOf('</section>', html.indexOf('<section id="hook"')));
+  const text = hook.replace(/<nav[\s\S]*?<\/nav>/g, ' ').replace(/<svg[\s\S]*?<\/svg>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const words = text.split(' ').filter((w) => /\w/.test(w)); // real words only, not the lone "?" tiles
+  assert.ok(words.length < 25, `${words.length} words: ${text}`);
 });
 
 test('pay form shows consent line with links', () => {
@@ -67,7 +78,7 @@ test('pay form shows consent line with links', () => {
 test('Under 18 is gone from the setup screen and the 18+ note is shown', () => {
   const html = read('index.html');
   assert.ok(!/Under 18/.test(html));
-  assert.ok(/aged 18 and over/.test(html));
+  assert.ok(/Adults 18\+ only/.test(html));
 });
 
 test('create-order rejects "Under 18" and still accepts the adult ranges', async () => {
