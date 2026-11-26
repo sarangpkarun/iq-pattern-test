@@ -6,10 +6,14 @@ const { scoreAnswers } = require('./_lib/score');
 const { sendResultEmail } = require('./_lib/email');
 const { sendPurchase } = require('./_lib/meta-capi');
 
+// Read the exact bytes Razorpay sent (the signature is calculated over them).
+// Read the stream FIRST: on Vercel, touching req.body makes the platform consume and parse the stream.
 function readRawBody(req) {
-  if (typeof req.body === 'string') return Promise.resolve(req.body);
-  if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body.toString('utf8'));
   return new Promise((resolve, reject) => {
+    if (req.readableEnded) { // the platform already read it: use what it kept
+      const b = req.body;
+      return resolve(typeof b === 'string' ? b : Buffer.isBuffer(b) ? b.toString('utf8') : JSON.stringify(b || {}));
+    }
     const chunks = [];
     req.on('data', (c) => chunks.push(c));
     req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
