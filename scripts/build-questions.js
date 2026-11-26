@@ -1,0 +1,140 @@
+// build-questions.js – builds the question files from their sources.
+//
+//   node scripts/build-questions.js
+//
+// Inputs : scripts/visual-src/   the 16 picture questions (SVG files + meta.json with their answers)
+//          scripts/text-questions.js   the 16 written questions
+// Outputs: public/questions.js   what the browser shows (NO answers)
+//          api/_lib/answers.js   the answer key (server only)
+//          public/img/           the pictures, renamed q01.svg ... q32.svg
+//
+// Test layout: 4 sections x 8 questions, easy -> hard inside each section
+// (positions 1-3 easy, 4-6 medium, 7-8 hard). Time limits follow difficulty.
+const fs = require('fs');
+const path = require('path');
+
+const root = path.join(__dirname, '..');
+const SRC = path.join(__dirname, 'visual-src');
+const IMG = path.join(root, 'public', 'img');
+const TEXT = require('./text-questions');
+
+const SECTION_ORDER = ['Pattern Recognition', 'Spatial Reasoning', 'Numerical Reasoning', 'Verbal Reasoning'];
+const PER_SECTION = 8;
+const TIER_BY_POSITION = ['easy', 'easy', 'easy', 'medium', 'medium', 'medium', 'hard', 'hard'];
+const TIME_LIMIT = { easy: 15, medium: 25, hard: 40 }; // seconds per question
+const LETTERS = 'ABCDEF';
+
+// small seeded random generator so the build gives the same result every time
+function rng(seed) {
+  return () => {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rand = rng(424242);
+
+// ---- gather the questions section by section ----
+const visualMeta = JSON.parse(fs.readFileSync(path.join(SRC, 'meta.json'), 'utf8'));
+const bySection = {};
+SECTION_ORDER.forEach((s) => { bySection[s] = []; });
+visualMeta.forEach((m) => bySection[m.section].push({ type: 'image', ...m }));
+Object.entries(TEXT).forEach(([section, list]) => {
+  list.forEach((t) => {
+    if (t.verify && !t.verify()) throw new Error('Rule check failed for: ' + t.prompt);
+    bySection[section].push({ type: 'text', ...t });
+  });
+});
+
+// ---- checks ----
+SECTION_ORDER.forEach((s) => {
+  if (bySection[s].length !== PER_SECTION) throw new Error(`${s} needs ${PER_SECTION} questions, has ${bySection[s].length}`);
+});
+Object.values(TEXT).flat().forEach((t) => {
+  if (new Set(t.options).size !== t.options.length) throw new Error('duplicate options: ' + t.prompt);
+});
+
+// ---- balance where the correct answer sits ----
+// The picture questions already have their answer positions. Place each written question's correct option
+// at the least-used letter so the key does not favour one position (a test-taker could exploit that).
+const used = Object.fromEntries(LETTERS.split('').map((l) => [l, 0]));
+visualMeta.forEach((m) => { used[m.answer]++; });
+SECTION_ORDER.forEach((s) => {
+  bySection[s].forEach((q) => {
+    if (q.type !== 'text') return;
+    const n = q.options.length;
+    const order = LETTERS.slice(0, n).split('').sort((a, b) => used[a] - used[b] || rand() - 0.5);
+    const target = LETTERS.indexOf(order[0]);
+    const [correct, ...others] = q.options;           // first listed option is the correct one
+    const placed = others.slice();
+    placed.splice(target, 0, correct);
+    q.shown = placed;
+    q.answer = LETTERS[target];
+    used[q.answer]++;
+  });
+});
+
+// ---- write the pictures and the two output files ----
+fs.rmSync(IMG, { recursive: true, force: true });
+fs.mkdirSync(IMG, { recursive: true });
+
+const questions = [];
+const key = { answers: {}, sections: {}, options: {}, tiers: {} };
+let n = 0;
+SECTION_ORDER.forEach((section) => {
+  bySection[section].forEach((q, pos) => {
+    n++;
+    const id = 'q' + String(n).padStart(2, '0');
+    const tier = TIER_BY_POSITION[pos];
+    if (q.type === 'text' && q.difficulty !== tier) throw new Error(`${id} is "${q.difficulty}" but sits in a "${tier}" position`);
+    const entry = { id, section, difficulty: tier, timeLimit: TIME_LIMIT[tier], type: q.type };
+    if (q.type === 'image') {
+      fs.copyFileSync(path.join(SRC, q.oldId + '.svg'), path.join(IMG, id + '.svg'));
+      entry.image = `img/${id}.svg`;
+      entry.options = [];
+      for (let k = 0; k < q.options; k++) {
+        const from = `${q.oldId}_${LETTERS[k].toLowerCase()}.svg`, to = `${id}_${LETTERS[k].toLowerCase()}.svg`;
+        fs.copyFileSync(path.join(SRC, from), path.join(IMG, to));
+        entry.options.push('img/' + to);
+      }
+      key.options[id] = q.options;
+    } else {
+      entry.prompt = q.prompt;
+      entry.options = q.shown;
+      key.options[id] = q.shown.length;
+    }
+    key.answers[id] = q.answer;
+    key.sections[id] = section;
+    key.tiers[id] = tier;
+    questions.push(entry);
+  });
+});
+
+fs.writeFileSync(path.join(root, 'public', 'questions.js'),
+  `// The question list shown in the browser. It contains NO correct answers.
+// Answers live only on the server in api/_lib/answers.js.
+// Generated by scripts/build-questions.js - edit the sources there, not this file.
+const QUESTIONS = ${JSON.stringify(questions, null, 2)};
+`);
+
+const block = (obj) => JSON.stringify(obj, null, 2).replace(/\n/g, '\n  ');
+fs.writeFileSync(path.join(root, 'api', '_lib', 'answers.js'),
+  `// ANSWER KEY - server only. Never put this file inside public/.
+// Generated by scripts/build-questions.js - edit the sources there, not this file.
+// answers:  the correct tile letter for each question (A = first tile shown, B = second, ...).
+// sections: which skill area each question belongs to.
+// options:  how many answer tiles each question has (used to validate submitted answers).
+// tiers:    easy / medium / hard - harder questions are worth more points.
+module.exports = {
+  answers: ${block(key.answers)},
+  sections: ${block(key.sections)},
+  options: ${block(key.options)},
+  tiers: ${block(key.tiers)},
+};
+`);
+
+const dist = {};
+Object.values(key.answers).forEach((a) => { dist[a] = (dist[a] || 0) + 1; });
+console.log(`Built ${questions.length} questions in ${SECTION_ORDER.length} sections.`);
+console.log('Correct-answer letters used:', JSON.stringify(dist));
